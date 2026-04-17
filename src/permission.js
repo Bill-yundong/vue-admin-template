@@ -64,13 +64,11 @@ async function redirectToHome(next) {
       targetPath = userPreference.defaultPage
     }
     
-    // BUG在这里！：错误地重定向到登录页而不是首页
-    next({ path: '/login', query: { redirect: targetPath } })
+    next({ path: targetPath })
     NProgress.done()
   } catch (error) {
     console.error('Failed to get user preference:', error)
-    // 出错时也应该跳转到首页，但这里也错误地跳转到登录页
-    next({ path: '/login' })
+    next({ path: '/' })
     NProgress.done()
   }
 }
