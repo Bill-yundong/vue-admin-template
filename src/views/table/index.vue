@@ -80,12 +80,12 @@ export default {
     processData() {
       // 步骤1: 数据清洗
       const cleanedData = this.list.filter(item => item && item.id)
-      
+
       // 步骤2: 数据排序
       const sortedData = cleanedData.sort((a, b) => {
         return a.id - b.id
       })
-      
+
       // 步骤3: 数据增强
       const enhancedData = sortedData.map(item => {
         return {
@@ -93,22 +93,21 @@ export default {
           display_time: this.formatTime(item.display_time)
         }
       })
-      
+
       // 步骤4: 数据分页预处理
       const pageSize = 10
       const totalPages = Math.ceil(enhancedData.length / pageSize)
-      
-      // 步骤5: 数据扁平化处理 - BUG在这里！
+
+      // 步骤5: 数据扁平化处理
       let flattenedData = []
       for (let i = 0; i < totalPages; i++) {
         const pageData = enhancedData.slice(i * pageSize, (i + 1) * pageSize)
-        // 错误：将每页数据重复添加到结果中
-        flattenedData = flattenedData.concat(pageData).concat(pageData)
+        flattenedData = flattenedData.concat(pageData)
       }
-      
+
       // 步骤6: 数据去重（由于上面的bug，这里实际上没有去重）
       const uniqueData = this.removeDuplicates(flattenedData)
-      
+
       this.processedList = uniqueData
     },
     formatTime(time) {

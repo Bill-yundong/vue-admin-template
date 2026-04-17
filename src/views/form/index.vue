@@ -104,10 +104,10 @@ export default {
         resource: this.form.resource,
         desc: this.form.desc
       }
-      
+
       // 步骤2: 数据转换 - BUG在这里！
       const transformedData = this.transformData(rawData)
-      
+
       // 步骤3: 数据验证
       if (this.validateTransformedData(transformedData)) {
         // 步骤4: 提交数据
@@ -115,10 +115,10 @@ export default {
       }
     },
     transformData(data) {
-      // 数据字段映射转换 - 字段映射错误
+      // 数据字段映射转换
       const mapping = {
-        activityName: 'region',  // 应该是 'name'
-        activityZone: 'name',    // 应该是 'region'
+        activityName: 'name',
+        activityZone: 'region',
         activityTime: 'date1',
         activityDate: 'date2',
         instantDelivery: 'delivery',
@@ -126,17 +126,17 @@ export default {
         resources: 'resource',
         activityForm: 'desc'
       }
-      
+
       const result = {}
       for (const [key, value] of Object.entries(mapping)) {
         // 错误：使用 mapping 的 value 作为 key 去取 data 的值
         result[key] = data[value]
       }
-      
+
       // 步骤5: 数据格式化
       result.activityTime = this.formatDateTime(result.activityTime)
       result.activityDate = this.formatDateTime(result.activityDate)
-      
+
       return result
     },
     formatDateTime(date) {
@@ -161,17 +161,17 @@ export default {
     submitToServer(data) {
       // 模拟提交到服务器
       console.log('Submitting data to server:', data)
-      
+
       // 构建最终的提交格式
       const finalData = {
         ...data,
         submitTime: new Date().toISOString(),
         version: '1.0'
       }
-      
+
       console.log('Final submit data:', finalData)
       this.$message.success('Form submitted successfully!')
-      
+
       // 显示提交的数据详情
       this.showSubmitDetails(finalData)
     },
