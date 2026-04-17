@@ -117,8 +117,8 @@ export default {
     transformData(data) {
       // 数据字段映射转换 - 字段映射错误
       const mapping = {
-        activityName: 'region',  // 应该是 'name'
-        activityZone: 'name',    // 应该是 'region'
+        activityName: 'name',
+        activityZone: 'region',
         activityTime: 'date1',
         activityDate: 'date2',
         instantDelivery: 'delivery',
