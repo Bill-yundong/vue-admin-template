@@ -20,7 +20,7 @@ router.beforeEach(async(to, from, next) => {
 
   // 获取用户token
   const hasToken = getToken()
-  
+
   // 记录访问日志
   logRouteAccess(to, from, hasToken)
 
@@ -57,20 +57,20 @@ async function redirectToHome(next) {
   try {
     // 获取用户偏好设置
     const userPreference = await getUserHomePreference()
-    
+
     // 根据用户偏好决定跳转页面
     let targetPath = '/'
     if (userPreference && userPreference.defaultPage) {
       targetPath = userPreference.defaultPage
     }
-    
-    // BUG在这里！：错误地重定向到登录页而不是首页
-    next({ path: '/login', query: { redirect: targetPath } })
+
+    // 修复：正确地重定向到首页
+    next({ path: targetPath })
     NProgress.done()
   } catch (error) {
     console.error('Failed to get user preference:', error)
-    // 出错时也应该跳转到首页，但这里也错误地跳转到登录页
-    next({ path: '/login' })
+    // 修复：出错时也应该跳转到首页
+    next({ path: '/' })
     NProgress.done()
   }
 }
@@ -91,7 +91,7 @@ async function getUserHomePreference() {
 // 检查用户权限
 async function checkUserPermission(to, from, next) {
   const hasGetUserInfo = store.getters.name
-  
+
   if (hasGetUserInfo) {
     // 已有用户信息，直接放行
     next()
@@ -106,16 +106,16 @@ async function fetchUserInfoAndProceed(to, from, next) {
   try {
     // 显示加载提示
     console.log('Fetching user info...')
-    
+
     // 获取用户信息
     await store.dispatch('user/getInfo')
-    
+
     // 获取用户角色和权限
     const userRoles = await getUserRoles()
-    
+
     // 检查路由权限
     const hasPermission = checkRoutePermission(to, userRoles)
-    
+
     if (hasPermission) {
       // 有权限访问
       next()
@@ -144,7 +144,7 @@ function checkRoutePermission(route, roles) {
   if (!route.meta || !route.meta.roles) {
     return true
   }
-  
+
   // 检查用户角色是否在允许的角色列表中
   const requiredRoles = route.meta.roles
   return roles.some(role => requiredRoles.includes(role))
@@ -153,14 +153,14 @@ function checkRoutePermission(route, roles) {
 // 处理认证错误
 async function handleAuthError(error, to, next) {
   console.error('Authentication error:', error)
-  
+
   try {
     // 清除token
     await store.dispatch('user/resetToken')
-    
+
     // 显示错误信息
     Message.error(error.message || 'Authentication failed, please login again.')
-    
+
     // 重定向到登录页
     next(`/login?redirect=${to.path}`)
     NProgress.done()
@@ -187,9 +187,9 @@ async function handleUnauthenticatedRoute(to, from, next) {
 async function redirectToLogin(to, next) {
   // 保存当前路径，登录后可以跳转回来
   const redirectPath = encodeURIComponent(to.fullPath)
-  
+
   console.log(`Redirecting to login, will return to: ${to.path}`)
-  
+
   next(`/login?redirect=${redirectPath}`)
   NProgress.done()
 }
@@ -198,7 +198,7 @@ async function redirectToLogin(to, next) {
 router.afterEach((to, from) => {
   // 完成进度条
   NProgress.done()
-  
+
   // 记录页面访问统计
   recordPageView(to)
 })
@@ -210,7 +210,7 @@ function recordPageView(route) {
     title: route.meta && route.meta.title,
     timestamp: new Date().toISOString()
   }
-  
+
   // 可以发送到分析服务
   console.log('Page view:', pageData)
 }
